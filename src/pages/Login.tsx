@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from '@tanstack/react-router';
+import fetchClient from '@/lib/api';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -19,7 +20,10 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await axios.post<{ token: string }>('/api/login', { email, password });
+      const response = await fetchClient.post<{ token: string }>('/api/login', {
+        username,
+        password,
+      });
       localStorage.setItem('token', response.data.token);
       navigate({ to: '/reports' });
     } catch (err) {
@@ -39,14 +43,14 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">ID</Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
-                placeholder="Enter your email"
+                placeholder="Enter your ID"
               />
             </div>
             <div>
