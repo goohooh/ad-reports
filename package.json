@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fxts/core": "^1.6.0",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.2",
@@ -26,6 +27,7 @@
     "react-date-range": "^2.0.1",
     "react-dom": "^19.0.0",
     "react-grid-layout": "^1.5.1",
+    "react-hook-form": "^7.54.2",
     "react-select": "^5.10.1",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.2",

@@ -6,7 +6,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import GridLayout from 'react-grid-layout';
 import { DateRangePicker } from 'react-date-range';
 import Select, { SingleValue } from 'react-select';
-import axios from 'axios';
 import ShareDialog from '@/components/ShareDialog';
 import QueryParser from '@/lib/QueryParser';
 import { ChartParams, MetricsData, FilterState } from '@/types';
@@ -14,6 +13,8 @@ import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
+import fetchClient from '@/lib/api';
+import { Button } from '@/components/ui/button';
 
 // API 데이터 페칭 함수
 const fetchMetrics = async (chartParams: ChartParams): Promise<MetricsData[]> => {
@@ -29,7 +30,7 @@ const fetchMetrics = async (chartParams: ChartParams): Promise<MetricsData[]> =>
     metric,
     group_by,
   };
-  const res = await axios.get<MetricsData[]>('/api/metrics', { params });
+  const res = await fetchClient.get<MetricsData[]>('/api/metrics', { params });
   return res.data;
 };
 
@@ -147,7 +148,18 @@ export default function ReportPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Report Dashboard</h1>
+      <header className="flex justify-between">
+        <h1 className="text-2xl font-bold mb-4">Report Dashboard</h1>
+        <Button
+          type="button"
+          onClick={() => {
+            localStorage.removeItem('token');
+            navigate({ to: '/login' });
+          }}
+        >
+          Logout
+        </Button>
+      </header>
       <div className="mb-4 flex space-x-4">
         <Select
           options={appOptions}
@@ -186,7 +198,7 @@ export default function ReportPage() {
         />
         <ShareDialog />
       </div>
-      <div ref={parentRef} style={{ height: '600px', width: '900px', overflow: 'auto' }}>
+      {/* <div ref={parentRef} style={{ height: '600px', width: '900px', overflow: 'auto' }}>
         <div
           style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}
         >
@@ -210,7 +222,7 @@ export default function ReportPage() {
             );
           })}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
