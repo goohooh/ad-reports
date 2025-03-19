@@ -9,7 +9,7 @@ const fetchClient = axios.create({
 
 fetchClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('jwt'); // 최신 토큰 가져오기
+    const token = localStorage.getItem('token'); // 최신 토큰 가져오기
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // 동적으로 헤더 설정
     }
@@ -25,7 +25,7 @@ fetchClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // 토큰 만료 시 로그인 페이지로 리다이렉트
-      localStorage.removeItem('jwt');
+      localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);

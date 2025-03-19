@@ -10,19 +10,12 @@ const LoadingComponent = () => (
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
-    const token = localStorage.getItem('jwt');
+    const token = localStorage.getItem('token');
     if (!token) {
       if (location.pathname === '/login') {
         return;
       }
       throw redirect({ to: '/login' });
-    }
-
-    const isValid = await new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 1000)); //(token); // 비동기 토큰 검증
-    if (!isValid) {
-      throw redirect({ to: '/login' });
-    } else {
-      throw redirect({ to: '/reports' });
     }
   },
   pendingComponent: LoadingComponent, // 로딩 중 표시할 컴포넌트

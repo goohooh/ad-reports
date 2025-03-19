@@ -4,9 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import GridLayout from 'react-grid-layout';
-import { DateRangePicker } from 'react-date-range';
-import Select, { SingleValue } from 'react-select';
-import ShareDialog from '@/components/ShareDialog';
 import QueryParser from '@/lib/QueryParser';
 import { ChartParams, MetricsData, FilterState } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
@@ -160,44 +157,10 @@ export default function ReportPage() {
           Logout
         </Button>
       </header>
-      <div className="mb-4 flex space-x-4">
-        <Select
-          options={appOptions}
-          onChange={(val: SingleValue<{ value: string; label: string }>) => {
-            setFilters({ ...filters, app: val?.value });
-            handleFilterChange();
-          }}
-          placeholder="Select App"
-          className="w-40"
-        />
-        <Select
-          options={platformOptions}
-          onChange={(val: SingleValue<{ value: string; label: string }>) => {
-            setFilters({ ...filters, platform: val?.value });
-            handleFilterChange();
-          }}
-          placeholder="Select Platform"
-          className="w-40"
-        />
-        <Select
-          options={adTypeOptions}
-          onChange={(val: SingleValue<{ value: string; label: string }>) => {
-            setFilters({ ...filters, adType: val?.value });
-            handleFilterChange();
-          }}
-          placeholder="Select Ad Type"
-          className="w-40"
-        />
-        <DateRangePicker
-          onChange={(ranges: any) => {
-            setFilters({ ...filters, dateRange: [ranges.selection] });
-            handleFilterChange();
-          }}
-          ranges={filters.dateRange}
-          className="w-80"
-        />
-        <ShareDialog />
-      </div>
+
+      {/* <Suspense fallback={<div>Loading Filter...</div>}>
+        <GlobalFilter />
+      </Suspense> */}
       {/* <div ref={parentRef} style={{ height: '600px', width: '900px', overflow: 'auto' }}>
         <div
           style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}

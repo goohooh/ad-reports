@@ -27,7 +27,10 @@ export default function LoginPage() {
     },
   });
   const { mutateAsync, error, isPending } = useMutation<LoginResponse, Error, LoginFormValues>({
-    mutationFn: (data: LoginFormValues) => fetchClient.post('/api/login', data),
+    mutationFn: async (data: LoginFormValues) => {
+      const response = await fetchClient.post<LoginResponse>('/api/login', data);
+      return response.data;
+    },
   });
   const navigate = useNavigate();
 
@@ -37,8 +40,10 @@ export default function LoginPage() {
       password,
     })
       .then((response) => {
-        localStorage.setItem('token', response.token);
-        navigate({ to: '/reports' });
+        if (response.success) {
+          localStorage.setItem('token', response.token);
+          navigate({ to: '/reports' });
+        }
       })
       .catch(noop);
   };
