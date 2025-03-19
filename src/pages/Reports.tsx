@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, Suspense } from 'react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -12,6 +12,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import fetchClient from '@/lib/api';
 import { Button } from '@/components/ui/button';
+import { GlobalFilter } from '@/components/GlobalFilter';
 
 // API 데이터 페칭 함수
 const fetchMetrics = async (chartParams: ChartParams): Promise<MetricsData[]> => {
@@ -100,10 +101,6 @@ export default function ReportPage() {
     dateRange: [{ startDate: new Date(), endDate: new Date(), key: 'selection' }],
   });
 
-  const appOptions = [
-    { value: 'app1', label: 'App 1' },
-    { value: 'app2', label: 'App 2' },
-  ];
   const platformOptions = [
     { value: 'web', label: 'Web' },
     { value: 'mobile', label: 'Mobile' },
@@ -158,9 +155,9 @@ export default function ReportPage() {
         </Button>
       </header>
 
-      {/* <Suspense fallback={<div>Loading Filter...</div>}>
+      <Suspense fallback={<div>Loading Filter...</div>}>
         <GlobalFilter />
-      </Suspense> */}
+      </Suspense>
       {/* <div ref={parentRef} style={{ height: '600px', width: '900px', overflow: 'auto' }}>
         <div
           style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}

@@ -1,48 +1,34 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { DateRangePicker } from 'react-date-range';
-import Select, { SingleValue } from 'react-select';
 import ShareDialog from '@/components/ShareDialog';
-import { FilterState } from '@/types';
+import { FilterState, platforms } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
-import { useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import fetchClient from '@/lib/api';
+import { useLocation, useNavigate } from '@tanstack/react-router';
+import { AppSelector } from './AppSelector';
+import QueryParser from '@/lib/QueryParser';
+import { PlatformSelector } from './PlatformSelector';
+import { AdTypeSelector } from './AdTypeSelector';
 
-type App = {
-  id: string;
-  name: string;
-};
-
-type AppFilterResponse = {
-  success: boolean;
-  data: App[];
-};
+const platformOptions = platforms.map((platform) => ({
+  value: platform,
+  label: platform.charAt(0).toUpperCase() + platform.slice(1),
+}));
 
 export function GlobalFilter() {
   const navigate = useNavigate();
+  const { search } = useLocation();
+  const [parser] = useState(new QueryParser(new URLSearchParams(search)));
+  const initialChartParams = parser.parseGlobalFilters();
   const [filters, setFilters] = useState<FilterState>({
-    app: undefined,
-    platform: undefined,
-    adType: undefined,
+    apps: undefined,
+    platforms: undefined,
+    adTypes: undefined,
     dateRange: [{ startDate: new Date(), endDate: new Date(), key: 'selection' }],
   });
 
-  const { data, error, isLoading, refetch } = useQuery<AppFilterResponse>({
-    queryKey: ['appFilters'],
-    queryFn: () => fetchClient('/api/filters'),
-  });
-
-  const appOptions = [
-    { value: 'app1', label: 'App 1' },
-    { value: 'app2', label: 'App 2' },
-  ];
-  const platformOptions = [
-    { value: 'web', label: 'Web' },
-    { value: 'mobile', label: 'Mobile' },
-  ];
   const adTypeOptions = [
     { value: 'banner', label: 'Banner' },
     { value: 'video', label: 'Video' },
@@ -54,42 +40,34 @@ export function GlobalFilter() {
       newParams.set('start_date', filters.dateRange[0].startDate.toISOString().split('T')[0]);
       newParams.set('end_date', filters.dateRange[0].endDate.toISOString().split('T')[0]);
     }
-    if (filters.app) newParams.set('app_ids', filters.app);
-    if (filters.platform) newParams.set('platforms', filters.platform);
-    if (filters.adType) newParams.set('ad_types', filters.adType);
-    newParams.set('metric', 'request');
-    newParams.set('group_by', 'app_id');
+    if (filters.apps) newParams.set('app_ids', filters.apps.join(','));
+    if (filters.platforms) newParams.set('platforms', filters.platforms.join(','));
+    if (filters.adTypes) newParams.set('ad_types', filters.adTypes.join(','));
     navigate({ to: '/reports', search: newParams.toString() });
   };
 
   return (
     <div className="mb-4 flex space-x-4">
-      <Select
-        options={appOptions}
-        onChange={(val: SingleValue<{ value: string; label: string }>) => {
-          setFilters({ ...filters, app: val?.value });
+      <Suspense fallback={<div>Loading...</div>}>
+        <AppSelector
+          selectedAppIds={initialChartParams.app_ids}
+          onSelectionChange={(selectedApps) => {
+            setFilters({ ...filters, apps: selectedApps.map((app) => app.id).join(',') });
+            handleFilterChange();
+          }}
+        />
+      </Suspense>
+      <PlatformSelector
+        onSelectionChange={(selectedPlatforms) => {
+          setFilters({ ...filters, platforms: selectedPlatforms });
           handleFilterChange();
         }}
-        placeholder="Select App"
-        className="w-40"
       />
-      <Select
-        options={platformOptions}
-        onChange={(val: SingleValue<{ value: string; label: string }>) => {
-          setFilters({ ...filters, platform: val?.value });
+      <AdTypeSelector
+        onSelectionChange={(selectedAdTypes) => {
+          setFilters({ ...filters, adTypes: selectedAdTypes });
           handleFilterChange();
         }}
-        placeholder="Select Platform"
-        className="w-40"
-      />
-      <Select
-        options={adTypeOptions}
-        onChange={(val: SingleValue<{ value: string; label: string }>) => {
-          setFilters({ ...filters, adType: val?.value });
-          handleFilterChange();
-        }}
-        placeholder="Select Ad Type"
-        className="w-40"
       />
       <DateRangePicker
         onChange={(ranges: any) => {
