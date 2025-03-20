@@ -116,8 +116,8 @@ export function AppSelector({
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
-          <span className="truncate">{getDisplayText()}</span>
+        <Button ref={triggerRef} variant="outline" className="justify-between">
+          <span>{getDisplayText()}</span>
           <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
       </DropdownMenuTrigger>

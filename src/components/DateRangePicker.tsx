@@ -57,7 +57,7 @@ export function DateRangePicker({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
+        <Button ref={triggerRef} variant="outline" className="justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>
           <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
