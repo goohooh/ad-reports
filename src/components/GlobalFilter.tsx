@@ -55,7 +55,6 @@ export function GlobalFilter() {
           }}
         />
       </Suspense>
-
       <PlatformSelector
         isOpen={isPlatformSelectorOpen}
         setIsOpen={setIsPlatformSelectorOpen}
@@ -80,13 +79,14 @@ export function GlobalFilter() {
         }}
       />
       <DateRangePicker
-        onChange={(ranges: any) => {
+        onApply={(ranges: any) => {
           setFilters({ ...filters, dateRange: [ranges.selection] });
           handleFilterChange();
         }}
-        ranges={filters.dateRange}
+        initialRange={filters.dateRange}
         className="w-80"
       />
+
       <ShareDialog />
     </div>
   );
