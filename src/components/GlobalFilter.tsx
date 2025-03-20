@@ -11,7 +11,6 @@ import { DateRangePicker } from './DateRangePicker';
 import { toast, Toaster } from 'sonner';
 import { format } from 'date-fns';
 import { useQueryFilterParser } from '@/lib/QueryFilterParserProvider';
-import { fromEntries, pipe } from '@fxts/core';
 
 export function GlobalFilter() {
   const navigate = useNavigate();
@@ -31,18 +30,20 @@ export function GlobalFilter() {
       return;
     }
 
-    const newParams = new URLSearchParams();
     if (filters.range.from && filters.range.to) {
-      newParams.set('start_date', format(filters.range.from, 'yyyy-MM-dd'));
-      newParams.set('end_date', format(filters.range.to, 'yyyy-MM-dd'));
+      parser.searchParams.set('start_date', format(filters.range.from, 'yyyy-MM-dd'));
+      parser.searchParams.set('end_date', format(filters.range.to, 'yyyy-MM-dd'));
     }
-    if (filters.apps) newParams.set('app_ids', filters.apps.join(','));
-    if (filters.platforms) newParams.set('platforms', filters.platforms.join(','));
-    if (filters.adTypes) newParams.set('ad_types', filters.adTypes.join(','));
+    if (filters.apps) parser.searchParams.set('app_ids', filters.apps.join(','));
+    if (filters.platforms) parser.searchParams.set('platforms', filters.platforms.join(','));
+    if (filters.adTypes) parser.searchParams.set('ad_types', filters.adTypes.join(','));
 
-    parser.searchParams = newParams;
-
-    navigate({ to: '/reports', search: pipe(newParams.entries(), fromEntries) });
+    navigate({
+      to: '/reports',
+      search: {
+        ...parser.searchParamsObject,
+      },
+    });
   };
 
   return (
