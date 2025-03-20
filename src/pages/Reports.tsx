@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { GlobalFilter } from '@/components/GlobalFilter';
 import { useLocation, useNavigate } from '@tanstack/react-router';
@@ -15,10 +15,6 @@ export default function ReportPage() {
   const navigate = useNavigate();
   const chartParams = parser.parseForCharts();
   const [isMetricDialogOpen, setIsMetricDialogOpen] = useState(false);
-
-  const columnCount = 3;
-
-  const parentRef = useRef<HTMLDivElement>(null);
 
   const handleMetricSelection = (selectedMetrics: Metric[]) => {
     setIsMetricDialogOpen(false);

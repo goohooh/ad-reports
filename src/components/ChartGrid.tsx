@@ -130,6 +130,7 @@ function generateChartKey(chartParam: ChartParams, index: number) {
 function ChartComponent({ chartParams, index }: { chartParams: ChartParams; index: number }) {
   const parser = useQueryFilterParser();
   const navigate = useNavigate();
+  const [currentGroupBy, setCurrentGroupBy] = useState(chartParams.group_by);
 
   const { data, isLoading } = useQuery<
     ReportResponse<(typeof chartParams)['metric'], (typeof chartParams)['group_by']>,
@@ -159,6 +160,15 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
     placeholderData: keepPreviousData,
   });
 
+  useEffect(() => {
+    navigate({
+      to: '/reports',
+      search: {
+        ...parser.searchParamsObject,
+      },
+    });
+  }, [currentGroupBy]);
+
   if (isLoading || !data) {
     return <div>{index + 1}</div>;
   }
@@ -169,8 +179,8 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
   let chartData = [];
   let groupByKeys: string[] = [];
 
-  if (chartParams.group_by) {
-    const groupByKey = getGroupByKey(chartParams.group_by);
+  if (currentGroupBy) {
+    const groupByKey = getGroupByKey(currentGroupBy);
     groupByKeys = [
       ...new Set(data.data.map((item) => (item as unknown as Record<string, string>)[groupByKey])),
     ];
@@ -199,16 +209,10 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
         <h3 className="text-center text-lg">{chartParams.metric}</h3>
 
         <SelectGroupBy
-          value={chartParams.group_by}
+          value={currentGroupBy}
           onChange={(val) => {
             parser.updateChartParams(chartParams.metric, val);
-
-            navigate({
-              to: '/reports',
-              search: {
-                ...parser.searchParamsObject,
-              },
-            });
+            setCurrentGroupBy(val);
           }}
         />
       </header>
@@ -218,7 +222,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
         <XAxis dataKey="date" />
         <YAxis />
         <Tooltip />
-        {chartParams.group_by ? (
+        {currentGroupBy ? (
           groupByKeys.map((key, i) => (
             <Line
               key={`${key}-${i.toString()}`}
