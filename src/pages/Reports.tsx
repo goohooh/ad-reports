@@ -49,8 +49,8 @@ export default function ReportPage() {
         <Button
           type="button"
           onClick={() => {
-            localStorage.removeItem('token');
             navigate({ to: '/login' });
+            localStorage.removeItem('token');
           }}
         >
           Logout
