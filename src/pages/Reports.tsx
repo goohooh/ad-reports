@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { GlobalFilter } from '@/components/GlobalFilter';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import QueryFilterParser from '@/lib/QueryFilterParser';
-import { ChartGridItem } from '@/components/ChartGridItem';
+import { ChartGridList } from '@/components/ChartGridItem';
 import { QueryFilterParserProvider } from '@/lib/QueryFilterParserProvider';
 import { Metric } from '@/types';
 import { MetricSelectorDialog } from '@/components/MetricSelectorDialog';
@@ -85,35 +85,7 @@ export default function ReportPage() {
           selectedMetrics={chartParams.map((c) => c.metric)}
         />
 
-        <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }}>
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {virtualizer.getVirtualItems().map((virtualItem) => {
-              const index = virtualItem.index;
-              return (
-                <div
-                  key={`${virtualItem.key}-${chartParams[index].metric}-${chartParams[index].group_by || 'no-group-by'}`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualItem.size}px`,
-                    transform: `translateY(${virtualItem.start}px)`,
-                    display: 'flex',
-                  }}
-                >
-                  <ChartGridItem index={index} chartParams={chartParams} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <ChartGridList chartParams={chartParams} />
       </QueryFilterParserProvider>
     </div>
   );

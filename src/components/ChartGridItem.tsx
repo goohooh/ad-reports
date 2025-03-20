@@ -6,11 +6,48 @@ import { ChartParams, GroupBy, groupByList, ReportResponse } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
 import fetchClient from '@/lib/api';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { entries, pipe } from '@fxts/core';
 import { useQueryFilterParser } from '@/lib/QueryFilterParserProvider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { useNavigate } from '@tanstack/react-router';
+
+export function ChartGridList({ chartParams }: { chartParams: ChartParams[] }) {
+  const layouts = chartParams.map((chartParam, i) => ({
+    i: generateChartKey(chartParam),
+    x: i % 3,
+    y: Math.floor(i / 3),
+    w: 1,
+    h: 1,
+  }));
+  const [layout, setLayout] = useState<GridLayout.Layout[]>(layouts);
+
+  return (
+    <GridLayout
+      compactType="horizontal"
+      layout={layout}
+      onLayoutChange={(newLayout) => setLayout(newLayout)}
+      cols={3}
+      rowHeight={300}
+      width={1200}
+      isDraggable={true}
+      isResizable={false}
+      preventCollision={false}
+    >
+      {chartParams.map((chartParam, index) => (
+        <div key={generateChartKey(chartParam, index)} className="border rounded-lg max-w-[400px]">
+          <Suspense fallback={<div>Loading...</div>}>
+            <ChartComponent index={index} chartParams={chartParams[index]} />
+          </Suspense>
+        </div>
+      ))}
+    </GridLayout>
+  );
+}
+
+function generateChartKey(chartParam: ChartParams) {
+  return `chart-${chartParam.metric}-${chartParam.group_by || 'no-group-by'}`;
+}
 
 function ChartComponent({ chartParams, index }: { chartParams: ChartParams; index: number }) {
   const parser = useQueryFilterParser();
@@ -41,6 +78,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
       });
       return res.data;
     },
+    placeholderData: keepPreviousData,
   });
 
   if (isLoading || !data) {
@@ -75,7 +113,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
+    <div className="p-4 bg-white rounded-lg">
       <header className="flex justify-between items-center">
         <h3 className="text-center text-lg">{chartParams.metric}</h3>
 
@@ -116,35 +154,6 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
     </div>
   );
 }
-export const ChartGridItem: React.FC<{ index: number; chartParams: ChartParams[] }> = ({
-  index,
-  chartParams,
-}) => {
-  const [layout, setLayout] = useState<GridLayout.Layout[]>([
-    { i: `chart${index}`, x: index % 3, y: Math.floor(index / 3), w: 1, h: 1 },
-  ]);
-
-  return (
-    <div style={{ height: '300px', width: '400px' }}>
-      <GridLayout
-        layout={layout}
-        onLayoutChange={(newLayout) => setLayout(newLayout)}
-        cols={3}
-        rowHeight={200}
-        width={300}
-        isDraggable={true}
-        isResizable={false}
-        style={{ position: 'absolute', top: 0, left: 0 }}
-      >
-        <div key={`chart${index}`} className="border rounded-lg">
-          <Suspense fallback={<div>Loading...</div>}>
-            <ChartComponent index={index} chartParams={chartParams[index]} />
-          </Suspense>
-        </div>
-      </GridLayout>
-    </div>
-  );
-};
 
 function SelectGroupBy({
   value,
