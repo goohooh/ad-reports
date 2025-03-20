@@ -5,13 +5,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { format, isAfter } from 'date-fns';
+import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
 import { DateRange, DayPicker } from 'react-day-picker';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface DateRangePickerProps {
   isOpen: boolean;
-  initialRange: DateRange | undefined;
+  selectedDateRange: DateRange | undefined;
   triggerRef?: React.RefObject<HTMLButtonElement>;
   onApply: (range: { from: Date; to: Date }) => void;
   setIsOpen: (open: boolean) => void;
@@ -19,7 +20,7 @@ interface DateRangePickerProps {
 
 export function DateRangePicker({
   isOpen,
-  initialRange = {
+  selectedDateRange = {
     from: new Date(),
     to: new Date(),
   },
@@ -28,12 +29,12 @@ export function DateRangePicker({
   setIsOpen,
 }: DateRangePickerProps) {
   const today = new Date();
-  const [range, setRange] = useState<DateRange>(initialRange);
+  const [range, setRange] = useState<DateRange>(selectedDateRange);
 
   const handleSelect = (newRange: DateRange | undefined) => {
-    if (newRange?.from && isAfter(newRange.from, today)) return; // 미래 날짜 선택 방지
-    if (newRange?.to && isAfter(newRange.to, today)) return;
-    setRange(newRange);
+    if (newRange) {
+      setRange(newRange);
+    }
   };
 
   const handleApply = () => {
@@ -58,7 +59,7 @@ export function DateRangePicker({
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>
-          <span>▼</span>
+          <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-4">

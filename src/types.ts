@@ -3,10 +3,10 @@ export interface ChartParams {
   start_date: string;
   end_date: string;
   app_ids: string[];
-  platforms: string[];
-  ad_types: string[];
-  metric: string;
-  group_by: string;
+  platforms: Platform[];
+  ad_types: AdType[];
+  metric: Metric;
+  group_by?: string;
 }
 
 export const metrics = [
@@ -38,8 +38,8 @@ export interface MetricsData {
 }
 
 export interface FilterState {
-  apps?: string[];
-  platforms?: string[];
-  adTypes?: string[];
+  apps: string[];
+  platforms: Platform[];
+  adTypes: AdType[];
   range: { from: Date; to: Date };
 }

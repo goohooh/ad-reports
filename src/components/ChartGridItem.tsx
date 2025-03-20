@@ -2,16 +2,18 @@ import GridLayout from 'react-grid-layout';
 import '/node_modules/react-grid-layout/css/styles.css';
 import { useState, Suspense } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { ChartParams, MetricsData } from '@/types';
+import { ChartParams, Metric, MetricsData } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
 import fetchClient from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import { entries, pipe } from '@fxts/core';
 
 type MetricResponse = {
   success: boolean;
   data: Metric;
 };
+
 // API 데이터 페칭 함수
 const fetchMetrics = async (chartParams: ChartParams): Promise<MetricsData[]> => {
   const { start_date, end_date, app_ids, platforms, ad_types, metric, group_by } = chartParams;
@@ -26,14 +28,14 @@ const fetchMetrics = async (chartParams: ChartParams): Promise<MetricsData[]> =>
     metric,
     group_by,
   };
-  const res = await fetchClient.post<MetricsData[]>('/api/report', { params });
+  const res = await fetchClient.post<MetricsData[]>('/api/report', { ...params });
   return res.data;
 };
 
 // 차트 컴포넌트
 function ChartComponent({ chartParams }: { chartParams: ChartParams }) {
   const { data, isLoading } = useQuery<MetricsData[], Error>({
-    queryKey: ['metrics', chartParams],
+    queryKey: ['metrics', ...pipe(chartParams, entries)],
     queryFn: () => fetchMetrics(chartParams),
     staleTime: 5 * 60 * 1000,
   });
@@ -63,7 +65,7 @@ export const ChartGridItem: React.FC<{ index: number; chartParams: ChartParams[]
   ]);
 
   return (
-    <div style={{ height: '200px', width: '300px' }}>
+    <div style={{ height: '300px', width: '400px' }}>
       <GridLayout
         layout={layout}
         onLayoutChange={(newLayout) => setLayout(newLayout)}

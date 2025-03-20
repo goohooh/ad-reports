@@ -1,0 +1,82 @@
+import { AdType, ChartParams, FilterState, Metric, Platform } from '@/types';
+import { map, pipe, toArray } from '@fxts/core';
+import { isAfter } from 'date-fns';
+
+export default class QueryFilterParser {
+  private params: URLSearchParams;
+  private defaultChartCount: number = 10;
+
+  constructor(searchParams: URLSearchParams) {
+    this.params = searchParams;
+  }
+
+  get searchParams() {
+    return this.params;
+  }
+
+  set searchParams(searchParams: URLSearchParams) {
+    this.params = searchParams;
+  }
+
+  get searchParamsObject() {
+    return Object.fromEntries(this.params.entries());
+  }
+
+  private getParam(key: string, defaultValue?: string): string | undefined {
+    const value = this.params.get(key);
+    return value !== null ? value : defaultValue;
+  }
+
+  private getArrayParam(key: string, defaultValue: string[] = []): string[] {
+    const value = this.params.get(key);
+    return value ? value.split(',').filter(Boolean) : defaultValue;
+  }
+
+  parseGlobalFilters(): FilterState {
+    return {
+      apps: this.getArrayParam('app_ids'),
+      platforms: this.getArrayParam('platforms') as Platform[],
+      adTypes: this.getArrayParam('ad_types') as AdType[],
+      range: {
+        from: new Date(this.getParam('start_date', new Date().toISOString().split('T')[0])!),
+        to: new Date(this.getParam('end_date', new Date().toISOString().split('T')[0])!),
+      },
+    };
+  }
+
+  parseForCharts(): ChartParams[] {
+    const metrics = this.getArrayParam('metrics') as Metric[];
+    const app_ids = this.getArrayParam('app_ids');
+    const platforms = this.getArrayParam('platforms') as Platform[];
+    const ad_types = this.getArrayParam('ad_types') as AdType[];
+    const group_by = this.getParam('group_by');
+    const start_date = this.getParam('start_date');
+    const end_date = this.getParam('end_date');
+
+    if (!start_date || !end_date) return [];
+
+    return pipe(
+      metrics,
+      map((metric) => {
+        return {
+          start_date,
+          end_date,
+          metric,
+          app_ids,
+          platforms,
+          ad_types,
+          group_by,
+        };
+      }),
+      toArray,
+    );
+  }
+
+  public validateFilters(filters: FilterState): string[] | null {
+    const errors: string[] = [];
+    if (!filters.range.from || !filters.range.to) errors.push('from date and to date are required');
+    if (isAfter(filters.range.from, filters.range.to))
+      errors.push('from date must be before to date');
+    return errors.length ? errors : null;
+  }
+}

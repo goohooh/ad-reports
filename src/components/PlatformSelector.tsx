@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'; // shadcn/ui 체크박스
 import { Button } from '@/components/ui/button'; // shadcn/ui 버튼
 import { Label } from '@/components/ui/label';
 import { Platform, platforms } from '@/types';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface PlatformSelectorProps {
   isOpen: boolean;
@@ -83,7 +84,7 @@ export function PlatformSelector({
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>
-          <span>▼</span>
+          <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[200px] p-4">

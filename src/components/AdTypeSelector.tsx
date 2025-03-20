@@ -7,6 +7,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'; // shadcn/ui 체크박스
 import { Button } from '@/components/ui/button'; // shadcn/ui 버튼
 import { Label } from '@/components/ui/label';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 // 하드코딩된 광고 타입 목록
 export const adTypes = ['banner', 'native', 'video'] as const;
@@ -75,7 +76,7 @@ export function AdTypeSelector({
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>
-          <span>▼</span>
+          <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[200px] p-4">

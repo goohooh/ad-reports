@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox'; // shadcn/ui 체크박스
 import { Button } from '@/components/ui/button'; // shadcn/ui 버튼
 import { Label } from '@/components/ui/label';
 import fetchClient from '@/lib/api';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 type App = {
   id: string;
@@ -117,7 +118,7 @@ export function AppSelector({
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>
-          <span>▼</span>
+          <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[300px] p-4">

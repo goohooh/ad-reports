@@ -1,32 +1,48 @@
-import { Suspense, useRef } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@/components/ui/button';
 import { GlobalFilter } from '@/components/GlobalFilter';
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import QueryParser from '@/lib/QueryParser';
+import QueryFilterParser from '@/lib/QueryFilterParser';
 import { ChartGridItem } from '@/components/ChartGridItem';
+import { QueryFilterParserProvider } from '@/lib/QueryFilterParserProvider';
+import { Metric } from '@/types';
+import { MetricSelectorDialog } from '@/components/MetricSelectorDialog';
 
 export default function ReportPage() {
   const { search } = useLocation();
-  const searchParams = new URLSearchParams(search);
+  const [parser] = useState(new QueryFilterParser(new URLSearchParams(search)));
   const navigate = useNavigate();
-  const parser = new QueryParser(new URLSearchParams(searchParams));
-  const initialChartParams = parser.parseForCharts();
-  const errors = parser.validateParams();
-
-  if (errors) {
-    return <div>Error: {errors.join(', ')}</div>;
-  }
+  const chartParams = parser.parseForCharts();
+  const [isMetricDialogOpen, setIsMetricDialogOpen] = useState(false);
+  console.log(chartParams);
 
   const columnCount = 3;
   const rowCount = Math.ceil(10 / columnCount);
   const items = Array.from({ length: 10 }, (_, index) => index);
 
   const parentRef = useRef<HTMLDivElement>(null);
+
+  const handleMetricSelection = (selectedMetrics: Metric[]) => {
+    setIsMetricDialogOpen(false);
+
+    parser.searchParams.set('metrics', selectedMetrics.join(','));
+
+    navigate({
+      to: '/reports',
+      search: {
+        ...parser.searchParamsObject,
+        metrics: selectedMetrics.join(','),
+      },
+    });
+  };
+  console.log(parser);
+
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 200,
+    estimateSize: () => 300,
+    lanes: columnCount,
     overscan: 2,
   });
 
@@ -45,35 +61,50 @@ export default function ReportPage() {
         </Button>
       </header>
 
-      <Suspense fallback={<div>Loading Filter...</div>}>
-        <GlobalFilter />
-      </Suspense>
+      <QueryFilterParserProvider parser={parser}>
+        <Suspense fallback={<div>Loading Filter...</div>}>
+          <GlobalFilter />
+        </Suspense>
 
-      <div ref={parentRef} style={{ height: '600px', width: '900px', overflow: 'auto' }}>
-        <div
-          style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}
-        >
-          {virtualizer.getVirtualItems().map((virtualItem) => {
-            const index = virtualItem.index;
-            return (
-              <div
-                key={virtualItem.key}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start}px)`,
-                  display: 'flex',
-                }}
-              >
-                <ChartGridItem index={index} chartParams={initialChartParams} />
-              </div>
-            );
-          })}
+        <Button onClick={() => setIsMetricDialogOpen(true)}>차트 추가</Button>
+
+        <MetricSelectorDialog
+          open={isMetricDialogOpen}
+          onOpenChange={setIsMetricDialogOpen}
+          onSelectionComplete={handleMetricSelection}
+          initialMetrics={[]} // 초기값 전달
+        />
+
+        <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }}>
+          <div
+            style={{
+              height: `${virtualizer.getTotalSize()}px`,
+              width: '100%',
+              position: 'relative',
+            }}
+          >
+            {virtualizer.getVirtualItems().map((virtualItem) => {
+              const index = virtualItem.index;
+              return (
+                <div
+                  key={virtualItem.key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                    display: 'flex',
+                  }}
+                >
+                  <ChartGridItem index={index} chartParams={chartParams} />
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </QueryFilterParserProvider>
     </div>
   );
 }
