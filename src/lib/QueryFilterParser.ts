@@ -4,7 +4,6 @@ import { isAfter } from 'date-fns';
 
 export default class QueryFilterParser {
   private params: URLSearchParams;
-  private defaultChartCount: number = 10;
 
   constructor(searchParams: URLSearchParams) {
     this.params = searchParams;

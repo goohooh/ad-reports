@@ -15,7 +15,6 @@ export default function ReportPage() {
   const navigate = useNavigate();
   const chartParams = parser.parseForCharts();
   const [isMetricDialogOpen, setIsMetricDialogOpen] = useState(false);
-  console.log(chartParams);
 
   const columnCount = 3;
   const rowCount = Math.ceil(10 / columnCount);
@@ -36,7 +35,6 @@ export default function ReportPage() {
       },
     });
   };
-  console.log(parser);
 
   const virtualizer = useVirtualizer({
     count: items.length,

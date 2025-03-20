@@ -1,3 +1,4 @@
+import { Metric } from './types';
 // src/types.ts
 export interface ChartParams {
   start_date: string;
@@ -29,13 +30,26 @@ export type Platform = (typeof platforms)[number];
 export const adTypes = ['banner', 'native', 'video'] as const;
 export type AdType = (typeof adTypes)[number];
 
-export interface MetricsData {
+export type ReportResponse<T extends Metric> = {
+  success: boolean;
+  data: MetricData<T>[];
+  meta: {
+    metric: T;
+    start_date: string;
+    end_date: string;
+    filters: {
+      app_id?: string;
+      platform?: Platform;
+      ad_type?: AdType;
+    };
+    group_by?: string;
+  };
+};
+export type MetricData<T extends Metric> = {
   date: string;
-  app_id?: string;
-  platform?: Platform;
-  ad_type?: AdType;
-  value: number;
-}
+} & {
+  [key in T]: number;
+};
 
 export interface FilterState {
   apps: string[];
