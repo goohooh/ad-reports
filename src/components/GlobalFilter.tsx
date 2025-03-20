@@ -58,6 +58,11 @@ export function GlobalFilter() {
           }}
           onSelectionComplete={() => {
             setIsPlatformSelectorOpen(true);
+            handleFilterChange();
+          }}
+          onDeselectAll={() => {
+            setFilters({ ...filters, apps: [] });
+            handleFilterChange();
           }}
         />
       </Suspense>
@@ -71,9 +76,11 @@ export function GlobalFilter() {
         }}
         onSelectionComplete={() => {
           setIsAdTypeSelectorOpen(true);
+          handleFilterChange();
         }}
         onDeselectAll={() => {
           setFilters({ ...filters, platforms: [] });
+          handleFilterChange();
           setIsAppSelectorOpen(true);
         }}
       />
@@ -87,9 +94,11 @@ export function GlobalFilter() {
         }}
         onSelectionComplete={() => {
           setIsDateRangePickerOpen(true);
+          handleFilterChange();
         }}
         onDeselectAll={() => {
           setFilters({ ...filters, platforms: [] });
+          handleFilterChange();
           setIsPlatformSelectorOpen(true);
         }}
       />

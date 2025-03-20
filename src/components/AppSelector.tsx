@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ interface AppSelectorProps {
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedApps: App[]) => void; // 선택된 앱 전달 (선택)
   onSelectionComplete?: () => void;
+  onDeselectAll?: () => void;
 }
 
 export function AppSelector({
@@ -34,6 +35,7 @@ export function AppSelector({
   setIsOpen,
   onSelectionChange,
   onSelectionComplete,
+  onDeselectAll,
 }: AppSelectorProps) {
   const [tempSelectedApps, setTempSelectedApps] = useState<string[]>([...selectedAppIds]); // 임시 선택 상태
   const [confirmedApps, setConfirmedApps] = useState<string[]>([...selectedAppIds]); // 확정된 선택 상태
@@ -48,6 +50,14 @@ export function AppSelector({
       return response.data;
     },
   });
+
+  useEffect(() => {
+    if (!isConfirmed && tempSelectedApps.length === 0 && confirmedApps.length > 0) {
+      setConfirmedApps([]);
+      setIsOpen(false);
+      onDeselectAll?.();
+    }
+  }, [JSON.stringify(tempSelectedApps), JSON.stringify(confirmedApps)]);
 
   // 로딩 중이거나 데이터/에러 처리
   if (isLoading || !data)
