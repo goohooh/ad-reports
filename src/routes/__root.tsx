@@ -11,13 +11,14 @@ const LoadingComponent = () => (
 export const Route = createRootRoute({
   beforeLoad: () => {
     const token = localStorage.getItem('token');
+    const searchParams = new URLSearchParams(location.search);
     if (!token) {
       if (location.pathname === '/login') {
         return;
       }
-      throw redirect({ to: '/login' });
+      throw redirect({ to: '/login', search: Object.fromEntries(searchParams.entries()) });
     } else if (location.pathname !== '/reports') {
-      throw redirect({ to: '/reports' });
+      throw redirect({ to: '/reports', search: Object.fromEntries(searchParams.entries()) });
     }
     return;
   },
