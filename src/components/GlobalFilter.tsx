@@ -72,6 +72,10 @@ export function GlobalFilter() {
         onSelectionComplete={() => {
           setIsAdTypeSelectorOpen(true);
         }}
+        onDeselectAll={() => {
+          setFilters({ ...filters, platforms: [] });
+          setIsAppSelectorOpen(true);
+        }}
       />
 
       <AdTypeSelector
@@ -83,6 +87,10 @@ export function GlobalFilter() {
         }}
         onSelectionComplete={() => {
           setIsDateRangePickerOpen(true);
+        }}
+        onDeselectAll={() => {
+          setFilters({ ...filters, platforms: [] });
+          setIsPlatformSelectorOpen(true);
         }}
       />
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,7 @@ interface PlatformSelectorProps {
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedPlatforms: Platform[]) => void; // 선택된 플랫폼 전달 (선택)
   onSelectionComplete?: () => void;
+  onDeselectAll?: () => void;
 }
 
 export function PlatformSelector({
@@ -24,6 +25,7 @@ export function PlatformSelector({
   setIsOpen,
   onSelectionChange,
   onSelectionComplete,
+  onDeselectAll,
 }: PlatformSelectorProps) {
   const [confirmedPlatforms, setConfirmedPlatforms] = useState<Platform[]>([...selectedPlatforms]); // 확정된 선택 상태
   const [tempSelectedPlatforms, setTempSelectedPlatforms] = useState<Platform[]>([
@@ -59,6 +61,14 @@ export function PlatformSelector({
       setIsConfirmed(false); // 닫힐 때마다 완료 상태 리셋
     }
   };
+
+  useEffect(() => {
+    if (!isConfirmed && tempSelectedPlatforms.length === 0 && confirmedPlatforms.length > 0) {
+      setConfirmedPlatforms([]);
+      setIsOpen(false);
+      onDeselectAll?.();
+    }
+  }, [JSON.stringify(tempSelectedPlatforms), JSON.stringify(confirmedPlatforms)]);
 
   // 표시 텍스트 생성 (확정된 선택만 표시)
   const getDisplayText = () => {

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,7 @@ interface AdTypeSelectorProps {
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedAdTypes: AdType[]) => void; // 선택된 광고 타입 전달 (선택)
   onSelectionComplete?: () => void;
+  onDeselectAll?: () => void;
 }
 
 export function AdTypeSelector({
@@ -27,9 +28,11 @@ export function AdTypeSelector({
   setIsOpen,
   onSelectionChange,
   onSelectionComplete,
+  onDeselectAll,
 }: AdTypeSelectorProps) {
   const [confirmedAdTypes, setConfirmedAdTypes] = useState<AdType[]>([...selectedAdTypes]); // 확정된 선택 상태
   const [tempSelectedAdTypes, setTempSelectedAdTypes] = useState<AdType[]>([...selectedAdTypes]); // 임시 선택 상태
+  const [isConfirmed, setIsConfirmed] = useState(false); // 완료 버튼 클릭 여부
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // 체크박스 상태 토글 (임시 상태만 업데이트)
@@ -46,6 +49,16 @@ export function AdTypeSelector({
     setIsOpen(false); // 드롭다운 닫기
     if (onSelectionComplete) {
       onSelectionComplete();
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open && !isConfirmed) {
+      setTempSelectedAdTypes([]); // 완료 없이 닫히면 임시 선택 해제
+    }
+    if (!open) {
+      setIsConfirmed(false); // 닫힐 때마다 완료 상태 리셋
     }
   };
 
@@ -71,8 +84,16 @@ export function AdTypeSelector({
     columns.push(adTypes.slice(i, i + itemsPerColumn));
   }
 
+  useEffect(() => {
+    if (!isConfirmed && tempSelectedAdTypes.length === 0 && confirmedAdTypes.length > 0) {
+      setConfirmedAdTypes([]);
+      setIsOpen(false);
+      onDeselectAll?.();
+    }
+  }, [JSON.stringify(tempSelectedAdTypes), JSON.stringify(confirmedAdTypes)]);
+
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>
