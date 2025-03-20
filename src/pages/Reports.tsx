@@ -1,5 +1,4 @@
 import { Suspense, useRef, useState } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@/components/ui/button';
 import { GlobalFilter } from '@/components/GlobalFilter';
 import { useLocation, useNavigate } from '@tanstack/react-router';
@@ -18,7 +17,6 @@ export default function ReportPage() {
   const [isMetricDialogOpen, setIsMetricDialogOpen] = useState(false);
 
   const columnCount = 3;
-  const rowCount = Math.ceil(10 / columnCount);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -47,14 +45,6 @@ export default function ReportPage() {
       },
     });
   };
-
-  const virtualizer = useVirtualizer({
-    count: chartParams.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 300,
-    lanes: columnCount,
-    overscan: 1,
-  });
 
   return (
     <div className="p-4">
