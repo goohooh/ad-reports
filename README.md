@@ -16,4 +16,4 @@ npm install
 npm run dev
 ```
 
-Open browser with: `http://localhost:5173/`
+port번호를 특정하지 않았다면, 브라우저를 열어 다음 URL을 입력하세요: `http://localhost:5173/`
