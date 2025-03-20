@@ -85,6 +85,9 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
     return <div>{index + 1}</div>;
   }
 
+  if (data.data.length === 0) {
+    return <div className="text-center p-4">No Data</div>;
+  }
   let chartData = [];
   let groupByKeys: string[] = [];
 

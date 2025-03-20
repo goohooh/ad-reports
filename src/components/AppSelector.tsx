@@ -35,7 +35,7 @@ export function AppSelector({
   onSelectionChange,
   onSelectionComplete,
 }: AppSelectorProps) {
-  const [tempSelectedApps, setTempSelectedApps] = useState<string[]>([]); // 임시 선택 상태
+  const [tempSelectedApps, setTempSelectedApps] = useState<string[]>([...selectedAppIds]); // 임시 선택 상태
   const [confirmedApps, setConfirmedApps] = useState<string[]>([...selectedAppIds]); // 확정된 선택 상태
   const [isConfirmed, setIsConfirmed] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -86,7 +86,7 @@ export function AppSelector({
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open && !isConfirmed) {
-      setTempSelectedApps([]); // 완료 없이 닫히면 임시 선택 해제
+      setTempSelectedApps(selectedAppIds); // 완료 없이 닫히면 임시 선택 해제
     }
     if (!open) {
       setIsConfirmed(false); // 닫힐 때마다 완료 상태 리셋
@@ -126,16 +126,20 @@ export function AppSelector({
           {columns.map((column, colIndex) => (
             <div key={colIndex} className="flex flex-col gap-2">
               {column.map((app) => (
-                <div key={app.id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`app-${app.id}`}
-                    checked={tempSelectedApps.includes(app.id)}
-                    onCheckedChange={() => handleCheckboxChange(app.id)}
-                  />
-                  <Label htmlFor={`app-${app.id}`} className="cursor-pointer">
-                    {app.name}
-                  </Label>
-                </div>
+                <Label
+                  key={app.id}
+                  htmlFor={`app-${app.id}`}
+                  className="cursor-pointer hover:bg-gray-50 p-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id={`app-${app.id}`}
+                      checked={tempSelectedApps.includes(app.id)}
+                      onCheckedChange={() => handleCheckboxChange(app.id)}
+                    />
+                    <span>{app.name}</span>
+                  </div>
+                </Label>
               ))}
             </div>
           ))}

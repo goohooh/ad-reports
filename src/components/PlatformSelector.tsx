@@ -27,7 +27,7 @@ export function PlatformSelector({
 }: PlatformSelectorProps) {
   const [confirmedPlatforms, setConfirmedPlatforms] = useState<Platform[]>([...selectedPlatforms]); // 확정된 선택 상태
   const [tempSelectedPlatforms, setTempSelectedPlatforms] = useState<Platform[]>([
-    ...confirmedPlatforms,
+    ...selectedPlatforms,
   ]); // 임시 선택 상태
   const [isConfirmed, setIsConfirmed] = useState(false); // 완료 버튼 클릭 여부
   const triggerRef = useRef<HTMLButtonElement>(null);

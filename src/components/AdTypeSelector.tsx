@@ -29,7 +29,7 @@ export function AdTypeSelector({
   onSelectionComplete,
 }: AdTypeSelectorProps) {
   const [confirmedAdTypes, setConfirmedAdTypes] = useState<AdType[]>([...selectedAdTypes]); // 확정된 선택 상태
-  const [tempSelectedAdTypes, setTempSelectedAdTypes] = useState<AdType[]>([]); // 임시 선택 상태
+  const [tempSelectedAdTypes, setTempSelectedAdTypes] = useState<AdType[]>([...selectedAdTypes]); // 임시 선택 상태
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // 체크박스 상태 토글 (임시 상태만 업데이트)
@@ -79,7 +79,7 @@ export function AdTypeSelector({
           <span>{isOpen ? <ChevronDown /> : <ChevronUp />}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[200px] p-4">
+      <DropdownMenuContent className="w-[200px] p-2">
         <div className="grid grid-cols-1 gap-4">
           {' '}
           {/* 광고 타입 3개라 1열로 충분 */}

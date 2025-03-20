@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { GlobalFilter } from '@/components/GlobalFilter';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import QueryFilterParser from '@/lib/QueryFilterParser';
-import { ChartGridList } from '@/components/ChartGridItem';
+import { ChartGridList } from '@/components/ChartGrid';
 import { QueryFilterParserProvider } from '@/lib/QueryFilterParserProvider';
 import { Metric } from '@/types';
 import { MetricSelectorDialog } from '@/components/MetricSelectorDialog';
