@@ -8,10 +8,12 @@
 
 # Local Development
 
-[Download Nodejs](https://nodejs.org/en/)
+[Download Nodejs LTS >= v22](https://nodejs.org/en/)
 
 ```bash
 npm install
 
 npm run dev
 ```
+
+Open browser with: `http://localhost:5173/`

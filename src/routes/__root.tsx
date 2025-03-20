@@ -9,14 +9,17 @@ const LoadingComponent = () => (
 );
 
 export const Route = createRootRoute({
-  beforeLoad: async () => {
+  beforeLoad: () => {
     const token = localStorage.getItem('token');
     if (!token) {
       if (location.pathname === '/login') {
         return;
       }
       throw redirect({ to: '/login' });
+    } else if (location.pathname !== '/reports') {
+      throw redirect({ to: '/reports' });
     }
+    return;
   },
   pendingComponent: LoadingComponent, // 로딩 중 표시할 컴포넌트
   component: () => (
