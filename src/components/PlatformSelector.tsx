@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,21 +7,30 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'; // shadcn/ui 체크박스
 import { Button } from '@/components/ui/button'; // shadcn/ui 버튼
 import { Label } from '@/components/ui/label';
-
-// 하드코딩된 플랫폼 목록
-export const platforms = ['ios', 'android', 'web'] as const;
-type Platform = (typeof platforms)[number]; // 'ios' | 'android' | 'web'
+import { Platform, platforms } from '@/types';
 
 interface PlatformSelectorProps {
+  isOpen: boolean;
+  triggerRef?: React.RefObject<HTMLButtonElement | null>; // 트리거 버튼 ref 추가
+  selectedPlatforms?: Platform[];
+  setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedPlatforms: Platform[]) => void; // 선택된 플랫폼 전달 (선택)
-  nextSelectorRef?: React.RefObject<HTMLButtonElement>; // 다음 셀렉터로 포커스 이동
+  onSelectionComplete?: () => void;
 }
 
-export function PlatformSelector({ onSelectionChange, nextSelectorRef }: PlatformSelectorProps) {
-  const [tempSelectedPlatforms, setTempSelectedPlatforms] = useState<Platform[]>([]); // 임시 선택 상태
-  const [confirmedPlatforms, setConfirmedPlatforms] = useState<Platform[]>([]); // 확정된 선택 상태
-  const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
-  const triggerRef = useRef<HTMLButtonElement>(null);
+export function PlatformSelector({
+  isOpen,
+  triggerRef,
+  selectedPlatforms = [],
+  setIsOpen,
+  onSelectionChange,
+  onSelectionComplete,
+}: PlatformSelectorProps) {
+  const [confirmedPlatforms, setConfirmedPlatforms] = useState<Platform[]>([...selectedPlatforms]); // 확정된 선택 상태
+  const [tempSelectedPlatforms, setTempSelectedPlatforms] = useState<Platform[]>([
+    ...confirmedPlatforms,
+  ]); // 임시 선택 상태
+  const [isConfirmed, setIsConfirmed] = useState(false); // 완료 버튼 클릭 여부
 
   // 체크박스 상태 토글 (임시 상태만 업데이트)
   const handleCheckboxChange = (platform: Platform) => {
@@ -35,8 +44,19 @@ export function PlatformSelector({ onSelectionChange, nextSelectorRef }: Platfor
     setConfirmedPlatforms(tempSelectedPlatforms); // 임시 선택을 확정 상태로 반영
     onSelectionChange?.(tempSelectedPlatforms); // 선택된 플랫폼 전달
     setIsOpen(false); // 드롭다운 닫기
-    if (nextSelectorRef?.current) {
-      nextSelectorRef.current.focus(); // 다음 셀렉터로 포커스 이동
+    if (onSelectionComplete) {
+      onSelectionComplete();
+    }
+  };
+
+  // 드롭다운이 닫힐 때 임시 선택 초기화
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open && !isConfirmed) {
+      setTempSelectedPlatforms([]); // 완료 없이 닫히면 임시 선택 해제
+    }
+    if (!open) {
+      setIsConfirmed(false); // 닫힐 때마다 완료 상태 리셋
     }
   };
 
@@ -60,7 +80,7 @@ export function PlatformSelector({ onSelectionChange, nextSelectorRef }: Platfor
   }
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>

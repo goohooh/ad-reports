@@ -1,21 +1,14 @@
-import { Suspense, useState } from 'react';
-import { DateRangePicker } from 'react-date-range';
+import { Suspense, useRef, useState } from 'react';
 import ShareDialog from '@/components/ShareDialog';
-import { FilterState, platforms } from '@/types';
+import { FilterState } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { AppSelector } from './AppSelector';
 import QueryParser from '@/lib/QueryParser';
 import { PlatformSelector } from './PlatformSelector';
 import { AdTypeSelector } from './AdTypeSelector';
-
-const platformOptions = platforms.map((platform) => ({
-  value: platform,
-  label: platform.charAt(0).toUpperCase() + platform.slice(1),
-}));
+import { DateRangePicker } from './DateRangePicker';
 
 export function GlobalFilter() {
   const navigate = useNavigate();
@@ -28,11 +21,11 @@ export function GlobalFilter() {
     adTypes: undefined,
     dateRange: [{ startDate: new Date(), endDate: new Date(), key: 'selection' }],
   });
+  const platformSelectorTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const adTypeOptions = [
-    { value: 'banner', label: 'Banner' },
-    { value: 'video', label: 'Video' },
-  ];
+  const [isAppSelectorOpen, setIsAppSelectorOpen] = useState(false);
+  const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
+  const [isAdTypeSelectorOpen, setIsAdTypeSelectorOpen] = useState(false);
 
   const handleFilterChange = () => {
     const newParams = new URLSearchParams();
@@ -50,23 +43,40 @@ export function GlobalFilter() {
     <div className="mb-4 flex space-x-4">
       <Suspense fallback={<div>Loading...</div>}>
         <AppSelector
+          isOpen={isAppSelectorOpen}
+          setIsOpen={setIsAppSelectorOpen}
           selectedAppIds={initialChartParams.app_ids}
           onSelectionChange={(selectedApps) => {
-            setFilters({ ...filters, apps: selectedApps.map((app) => app.id).join(',') });
+            setFilters({ ...filters, apps: selectedApps.map((app) => app.id) });
             handleFilterChange();
+          }}
+          onSelectionComplete={() => {
+            setIsPlatformSelectorOpen(true);
           }}
         />
       </Suspense>
+
       <PlatformSelector
+        isOpen={isPlatformSelectorOpen}
+        setIsOpen={setIsPlatformSelectorOpen}
+        triggerRef={platformSelectorTriggerRef}
         onSelectionChange={(selectedPlatforms) => {
           setFilters({ ...filters, platforms: selectedPlatforms });
           handleFilterChange();
         }}
+        onSelectionComplete={() => {
+          setIsAdTypeSelectorOpen(true);
+        }}
       />
       <AdTypeSelector
+        isOpen={isAdTypeSelectorOpen}
+        setIsOpen={setIsAdTypeSelectorOpen}
         onSelectionChange={(selectedAdTypes) => {
           setFilters({ ...filters, adTypes: selectedAdTypes });
           handleFilterChange();
+        }}
+        onSelectionComplete={() => {
+          // TODO: open date picker
         }}
       />
       <DateRangePicker

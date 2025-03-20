@@ -8,8 +8,6 @@ import QueryParser from '@/lib/QueryParser';
 import { ChartParams, MetricsData, FilterState } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
 import fetchClient from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { GlobalFilter } from '@/components/GlobalFilter';

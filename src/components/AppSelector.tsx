@@ -20,19 +20,23 @@ interface AppFilterResponse {
 }
 
 interface AppSelectorProps {
+  isOpen: boolean;
   selectedAppIds?: string[];
+  setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedApps: App[]) => void; // 선택된 앱 전달 (선택)
-  nextSelectorRef?: React.RefObject<HTMLButtonElement>; // 다음 셀렉터로 포커스 이동
+  onSelectionComplete?: () => void;
 }
 
 export function AppSelector({
   selectedAppIds = [],
+  isOpen,
+  setIsOpen,
   onSelectionChange,
-  nextSelectorRef,
+  onSelectionComplete,
 }: AppSelectorProps) {
   const [tempSelectedApps, setTempSelectedApps] = useState<string[]>([]); // 임시 선택 상태
   const [confirmedApps, setConfirmedApps] = useState<string[]>([...selectedAppIds]); // 확정된 선택 상태
-  const [isOpen, setIsOpen] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // react-query로 앱 데이터 가져오기
@@ -72,10 +76,20 @@ export function AppSelector({
     setConfirmedApps(tempSelectedApps); // 임시 선택을 확정 상태로 반영
     const selected = apps.filter((app) => tempSelectedApps.includes(app.id));
     onSelectionChange?.(selected); // 선택된 앱 전달
-    if (nextSelectorRef?.current) {
-      nextSelectorRef.current.focus(); // 다음 셀렉터로 포커스 이동
+    setIsOpen(false); // AppSelector 닫기
+    if (onSelectionComplete) {
+      onSelectionComplete();
     }
-    setIsOpen(false);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open && !isConfirmed) {
+      setTempSelectedApps([]); // 완료 없이 닫히면 임시 선택 해제
+    }
+    if (!open) {
+      setIsConfirmed(false); // 닫힐 때마다 완료 상태 리셋
+    }
   };
 
   // 표시 텍스트 생성 (확정된 선택만 표시)
@@ -99,7 +113,7 @@ export function AppSelector({
   }
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button ref={triggerRef} variant="outline" className="w-[200px] justify-between truncate">
           <span className="truncate">{getDisplayText()}</span>

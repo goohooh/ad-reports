@@ -13,14 +13,22 @@ export const adTypes = ['banner', 'native', 'video'] as const;
 type AdType = (typeof adTypes)[number]; // 'banner' | 'native' | 'video'
 
 interface AdTypeSelectorProps {
+  isOpen: boolean;
+  selectedAdTypes?: AdType[];
+  setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedAdTypes: AdType[]) => void; // 선택된 광고 타입 전달 (선택)
-  nextSelectorRef?: React.RefObject<HTMLButtonElement>; // 다음 셀렉터로 포커스 이동
+  onSelectionComplete?: () => void;
 }
 
-export function AdTypeSelector({ onSelectionChange, nextSelectorRef }: AdTypeSelectorProps) {
+export function AdTypeSelector({
+  isOpen,
+  selectedAdTypes = [],
+  setIsOpen,
+  onSelectionChange,
+  onSelectionComplete,
+}: AdTypeSelectorProps) {
+  const [confirmedAdTypes, setConfirmedAdTypes] = useState<AdType[]>([...selectedAdTypes]); // 확정된 선택 상태
   const [tempSelectedAdTypes, setTempSelectedAdTypes] = useState<AdType[]>([]); // 임시 선택 상태
-  const [confirmedAdTypes, setConfirmedAdTypes] = useState<AdType[]>([]); // 확정된 선택 상태
-  const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // 체크박스 상태 토글 (임시 상태만 업데이트)
@@ -35,8 +43,8 @@ export function AdTypeSelector({ onSelectionChange, nextSelectorRef }: AdTypeSel
     setConfirmedAdTypes(tempSelectedAdTypes); // 임시 선택을 확정 상태로 반영
     onSelectionChange?.(tempSelectedAdTypes); // 선택된 광고 타입 전달
     setIsOpen(false); // 드롭다운 닫기
-    if (nextSelectorRef?.current) {
-      nextSelectorRef.current.focus(); // 다음 셀렉터로 포커스 이동
+    if (onSelectionComplete) {
+      onSelectionComplete();
     }
   };
 
