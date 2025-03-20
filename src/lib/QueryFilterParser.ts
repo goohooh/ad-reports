@@ -7,7 +7,7 @@ import {
   Metric,
   Platform,
 } from '@/types';
-import { map, pipe, toArray } from '@fxts/core';
+import { map, pipe, toArray, uniqBy } from '@fxts/core';
 import { isAfter } from 'date-fns';
 
 export default class QueryFilterParser {
@@ -83,6 +83,7 @@ export default class QueryFilterParser {
           group_by,
         };
       }),
+      uniqBy(({ metric, group_by }) => `${metric}${group_by ? `:${group_by}` : ''}`),
       toArray,
     );
   }

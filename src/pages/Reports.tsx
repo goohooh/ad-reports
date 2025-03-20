@@ -8,6 +8,7 @@ import { ChartGridItem } from '@/components/ChartGridItem';
 import { QueryFilterParserProvider } from '@/lib/QueryFilterParserProvider';
 import { Metric } from '@/types';
 import { MetricSelectorDialog } from '@/components/MetricSelectorDialog';
+import { concat, filter, map, pipe, toArray } from '@fxts/core';
 
 export default function ReportPage() {
   const { search } = useLocation();
@@ -18,17 +19,26 @@ export default function ReportPage() {
 
   const columnCount = 3;
   const rowCount = Math.ceil(10 / columnCount);
-  const items = Array.from({ length: 10 }, (_, index) => index);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
   const handleMetricSelection = (selectedMetrics: Metric[]) => {
     setIsMetricDialogOpen(false);
 
-    const currentCharts = parser.searchParams.get('charts');
-    const newCharts = selectedMetrics.join(',');
-    const nextCharts = currentCharts ? `${currentCharts},${newCharts}` : newCharts;
-    parser.searchParams.set('charts', nextCharts);
+    const currentCharts = parser.parseForCharts();
+    const nextCharts = pipe(
+      currentCharts,
+      filter(({ metric }) => selectedMetrics.includes(metric)),
+      concat(
+        selectedMetrics
+          .filter((metric) => !currentCharts.some((c) => c.metric === metric))
+          .map((metric) => ({ metric, group_by: undefined })),
+      ),
+      map(({ metric, group_by }) => `${metric}${group_by ? `:${group_by}` : ''}`),
+      toArray,
+    );
+
+    parser.searchParams.set('charts', nextCharts.join(','));
 
     navigate({
       to: '/reports',
@@ -40,11 +50,11 @@ export default function ReportPage() {
   };
 
   const virtualizer = useVirtualizer({
-    count: items.length,
+    count: chartParams.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 300,
     lanes: columnCount,
-    overscan: 2,
+    overscan: 1,
   });
 
   return (
@@ -73,7 +83,7 @@ export default function ReportPage() {
           open={isMetricDialogOpen}
           onOpenChange={setIsMetricDialogOpen}
           onSelectionComplete={handleMetricSelection}
-          initialMetrics={[]} // 초기값 전달
+          selectedMetrics={chartParams.map((c) => c.metric)}
         />
 
         <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }}>

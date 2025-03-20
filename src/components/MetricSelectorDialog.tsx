@@ -15,18 +15,18 @@ interface MetricSelectorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectionComplete: (selectedMetrics: Metric[]) => void;
-  initialMetrics: string[]; // URL에서 가져온 초기 선택값
+  selectedMetrics: Metric[];
 }
 
 export function MetricSelectorDialog({
   open,
   onOpenChange,
   onSelectionComplete,
-  initialMetrics,
+  selectedMetrics: initialMetrics,
 }: MetricSelectorDialogProps) {
   const [selectedMetrics, setSelectedMetrics] = useState<Metric[]>([]);
 
-  // 다이얼로그가 열릴 때 initialMetrics로 초기화
+  // 다이얼로그가 열릴 때 초기화
   useEffect(() => {
     if (open) {
       setSelectedMetrics(initialMetrics.filter((m) => metrics.includes(m as Metric)) as Metric[]);
