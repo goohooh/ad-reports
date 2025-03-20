@@ -44,7 +44,6 @@ export default function ReportPage() {
       to: '/reports',
       search: {
         ...parser.searchParamsObject,
-        charts: nextCharts,
       },
     });
   };
