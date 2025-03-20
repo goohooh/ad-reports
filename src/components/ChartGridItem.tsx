@@ -101,7 +101,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
           acc[key] = { date: key };
           groupByKeys.forEach((p) => (acc[key][p] = 0));
         }
-        acc[key][item[groupByKey]] = item[chartParams.metric];
+        acc[key][item[groupByKey as keyof typeof item]] = item[chartParams.metric];
         return acc;
       },
       {} as { [key: string]: { [key: string]: number | string } },
