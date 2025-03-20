@@ -1,4 +1,12 @@
-import { AdType, ChartParams, FilterState, Metric, Platform } from '@/types';
+import {
+  AdType,
+  ChartFilterState,
+  ChartParams,
+  GlobalFilterState,
+  GroupBy,
+  Metric,
+  Platform,
+} from '@/types';
 import { map, pipe, toArray } from '@fxts/core';
 import { isAfter } from 'date-fns';
 
@@ -31,7 +39,7 @@ export default class QueryFilterParser {
     return value ? value.split(',').filter(Boolean) : defaultValue;
   }
 
-  parseGlobalFilters(): FilterState {
+  parseGlobalFilters(): GlobalFilterState {
     return {
       apps: this.getArrayParam('app_ids'),
       platforms: this.getArrayParam('platforms') as Platform[],
@@ -43,20 +51,28 @@ export default class QueryFilterParser {
     };
   }
 
+  parseChartFilters(): ChartFilterState[] {
+    return this.getArrayParam('charts').map((chart) => {
+      return {
+        metric: chart.split(':')[0] as Metric,
+        groupBy: chart.split(':')[1] as GroupBy | undefined,
+      };
+    });
+  }
+
   parseForCharts(): ChartParams[] {
-    const metrics = this.getArrayParam('metrics') as Metric[];
+    const charts = this.parseChartFilters();
     const app_ids = this.getArrayParam('app_ids');
     const platforms = this.getArrayParam('platforms') as Platform[];
     const ad_types = this.getArrayParam('ad_types') as AdType[];
-    const group_by = this.getParam('group_by');
     const start_date = this.getParam('start_date');
     const end_date = this.getParam('end_date');
 
     if (!start_date || !end_date) return [];
 
     return pipe(
-      metrics,
-      map((metric) => {
+      charts,
+      map(({ metric, group_by }) => {
         return {
           start_date,
           end_date,
@@ -71,7 +87,7 @@ export default class QueryFilterParser {
     );
   }
 
-  public validateFilters(filters: FilterState): string[] | null {
+  public validateFilters(filters: GlobalFilterState): string[] | null {
     const errors: string[] = [];
     if (!filters.range.from || !filters.range.to) errors.push('from date and to date are required');
     if (isAfter(filters.range.from, filters.range.to))

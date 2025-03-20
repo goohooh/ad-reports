@@ -1,6 +1,6 @@
 import { Suspense, useState } from 'react';
 import ShareDialog from '@/components/ShareDialog';
-import { FilterState } from '@/types';
+import { GlobalFilterState } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
 import '/node_modules/react-resizable/css/styles.css';
 import { useNavigate } from '@tanstack/react-router';
@@ -16,7 +16,7 @@ import { fromEntries, pipe } from '@fxts/core';
 export function GlobalFilter() {
   const navigate = useNavigate();
   const parser = useQueryFilterParser();
-  const [filters, setFilters] = useState<FilterState>(parser.parseGlobalFilters());
+  const [filters, setFilters] = useState<GlobalFilterState>(parser.parseGlobalFilters());
 
   const [isAppSelectorOpen, setIsAppSelectorOpen] = useState(false);
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
@@ -60,6 +60,7 @@ export function GlobalFilter() {
           }}
         />
       </Suspense>
+
       <PlatformSelector
         isOpen={isPlatformSelectorOpen}
         setIsOpen={setIsPlatformSelectorOpen}
@@ -71,6 +72,7 @@ export function GlobalFilter() {
           setIsAdTypeSelectorOpen(true);
         }}
       />
+
       <AdTypeSelector
         isOpen={isAdTypeSelectorOpen}
         setIsOpen={setIsAdTypeSelectorOpen}
@@ -82,6 +84,7 @@ export function GlobalFilter() {
           setIsDateRangePickerOpen(true);
         }}
       />
+
       <DateRangePicker
         isOpen={isDateRangePickerOpen}
         setIsOpen={setIsDateRangePickerOpen}

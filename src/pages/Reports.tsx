@@ -25,13 +25,16 @@ export default function ReportPage() {
   const handleMetricSelection = (selectedMetrics: Metric[]) => {
     setIsMetricDialogOpen(false);
 
-    parser.searchParams.set('metrics', selectedMetrics.join(','));
+    const currentCharts = parser.searchParams.get('charts');
+    const newCharts = selectedMetrics.join(',');
+    const nextCharts = currentCharts ? `${currentCharts},${newCharts}` : newCharts;
+    parser.searchParams.set('charts', nextCharts);
 
     navigate({
       to: '/reports',
       search: {
         ...parser.searchParamsObject,
-        metrics: selectedMetrics.join(','),
+        charts: nextCharts,
       },
     });
   };

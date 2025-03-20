@@ -30,6 +30,8 @@ export type Platform = (typeof platforms)[number];
 export const adTypes = ['banner', 'native', 'video'] as const;
 export type AdType = (typeof adTypes)[number];
 
+export type GroupBy = 'app_id' | 'platform' | 'ad_type';
+
 export type ReportResponse<T extends Metric> = {
   success: boolean;
   data: MetricData<T>[];
@@ -51,9 +53,14 @@ export type MetricData<T extends Metric> = {
   [key in T]: number;
 };
 
-export interface FilterState {
+export interface GlobalFilterState {
   apps: string[];
   platforms: Platform[];
   adTypes: AdType[];
   range: { from: Date; to: Date };
+}
+
+export interface ChartFilterState {
+  metric: Metric;
+  group_by?: GroupBy;
 }
