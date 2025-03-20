@@ -43,7 +43,7 @@ export default class QueryFilterParser {
     return this.getArrayParam('charts').map((chart) => {
       return {
         metric: chart.split(':')[0] as Metric,
-        groupBy: chart.split(':')[1] as GroupBy | undefined,
+        group_by: chart.split(':')[1] as GroupBy | undefined,
       };
     });
   }

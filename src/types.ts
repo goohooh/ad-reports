@@ -7,7 +7,7 @@ export interface ChartParams {
   platforms: Platform[];
   ad_types: AdType[];
   metric: Metric;
-  group_by?: string;
+  group_by?: GroupBy;
 }
 
 export const metrics = [
@@ -30,13 +30,14 @@ export type Platform = (typeof platforms)[number];
 export const adTypes = ['banner', 'native', 'video'] as const;
 export type AdType = (typeof adTypes)[number];
 
-export type GroupBy = 'app_id' | 'platform' | 'ad_type';
+export const groupByList = ['app_id', 'platform', 'ad_type'] as const;
+export type GroupBy = (typeof groupByList)[number];
 
-export type ReportResponse<T extends Metric> = {
+export type ReportResponse<TMetric extends Metric, TGroupBy extends GroupBy | undefined> = {
   success: boolean;
-  data: MetricData<T>[];
+  data: MetricData<TMetric, TGroupBy>[];
   meta: {
-    metric: T;
+    metric: TMetric;
     start_date: string;
     end_date: string;
     filters: {
@@ -47,11 +48,15 @@ export type ReportResponse<T extends Metric> = {
     group_by?: string;
   };
 };
-export type MetricData<T extends Metric> = {
+export type MetricData<TMetric extends Metric, TGroupBy extends GroupBy | undefined> = {
   date: string;
 } & {
-  [key in T]: number;
-};
+  [key in TMetric]: number;
+} & (TGroupBy extends GroupBy
+    ? {
+        [key in TGroupBy]: string;
+      }
+    : Record<string, never>);
 
 export interface GlobalFilterState {
   apps: string[];

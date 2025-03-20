@@ -97,7 +97,7 @@ export default function ReportPage() {
               const index = virtualItem.index;
               return (
                 <div
-                  key={virtualItem.key}
+                  key={`${virtualItem.key}-${chartParams[index].metric}-${chartParams[index].group_by || 'no-group-by'}`}
                   style={{
                     position: 'absolute',
                     top: 0,
