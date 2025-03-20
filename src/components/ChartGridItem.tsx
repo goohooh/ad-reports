@@ -63,7 +63,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
           acc[key] = { date: key };
           groupByKeys.forEach((p) => (acc[key][p] = 0));
         }
-        acc[key][item[groupByKey]] = item.request;
+        acc[key][item[groupByKey]] = item[chartParams.metric];
         return acc;
       },
       {} as { [key: string]: { [key: string]: number | string } },
