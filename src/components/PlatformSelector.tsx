@@ -15,7 +15,7 @@ interface PlatformSelectorProps {
   selectedPlatforms?: Platform[];
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedPlatforms: Platform[]) => void; // 선택된 플랫폼 전달 (선택)
-  onSelectionComplete?: () => void;
+  onSelectionComplete?: (selectedPlatforms: Platform[]) => void;
   onDeselectAll?: () => void;
 }
 
@@ -47,7 +47,7 @@ export function PlatformSelector({
     onSelectionChange?.(tempSelectedPlatforms); // 선택된 플랫폼 전달
     setIsOpen(false); // 드롭다운 닫기
     if (onSelectionComplete) {
-      onSelectionComplete();
+      onSelectionComplete(tempSelectedPlatforms);
     }
   };
 
@@ -65,6 +65,7 @@ export function PlatformSelector({
   useEffect(() => {
     if (!isConfirmed && tempSelectedPlatforms.length === 0 && confirmedPlatforms.length > 0) {
       setConfirmedPlatforms([]);
+      onSelectionChange?.([]); // 선택된 광고 타입 전달
       setIsOpen(false);
       onDeselectAll?.();
     }

@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import ShareDialog from '@/components/ShareDialog';
 import { GlobalFilterState } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
@@ -22,7 +22,7 @@ export function GlobalFilter() {
   const [isAdTypeSelectorOpen, setIsAdTypeSelectorOpen] = useState(false);
   const [isDateRangePickerOpen, setIsDateRangePickerOpen] = useState(false);
 
-  const handleFilterChange = () => {
+  const handleFilterChange = useCallback(() => {
     const errors = parser.validateFilters(filters);
 
     if (errors) {
@@ -30,10 +30,8 @@ export function GlobalFilter() {
       return;
     }
 
-    if (filters.range.from && filters.range.to) {
-      parser.searchParams.set('start_date', format(filters.range.from, 'yyyy-MM-dd'));
-      parser.searchParams.set('end_date', format(filters.range.to, 'yyyy-MM-dd'));
-    }
+    parser.searchParams.set('start_date', format(filters.range.from, 'yyyy-MM-dd'));
+    parser.searchParams.set('end_date', format(filters.range.to, 'yyyy-MM-dd'));
     if (filters.apps) parser.searchParams.set('app_ids', filters.apps.join(','));
     if (filters.platforms) parser.searchParams.set('platforms', filters.platforms.join(','));
     if (filters.adTypes) parser.searchParams.set('ad_types', filters.adTypes.join(','));
@@ -44,7 +42,11 @@ export function GlobalFilter() {
         ...parser.searchParamsObject,
       },
     });
-  };
+  }, [JSON.stringify(filters)]);
+
+  useEffect(() => {
+    handleFilterChange();
+  }, [JSON.stringify(filters)]);
 
   return (
     <div className="mb-4 flex space-x-4">
@@ -56,13 +58,14 @@ export function GlobalFilter() {
           onSelectionChange={(selectedApps) => {
             setFilters({ ...filters, apps: selectedApps.map((app) => app.id) });
           }}
-          onSelectionComplete={() => {
+          onSelectionComplete={(seletedApps) => {
+            setFilters({ ...filters, apps: seletedApps.map((app) => app.id) });
             setIsPlatformSelectorOpen(true);
-            handleFilterChange();
+            // handleFilterChange();
           }}
           onDeselectAll={() => {
             setFilters({ ...filters, apps: [] });
-            handleFilterChange();
+            // handleFilterChange();
           }}
         />
       </Suspense>
@@ -74,13 +77,14 @@ export function GlobalFilter() {
         onSelectionChange={(selectedPlatforms) => {
           setFilters({ ...filters, platforms: selectedPlatforms });
         }}
-        onSelectionComplete={() => {
+        onSelectionComplete={(selectedPlatforms) => {
+          setFilters({ ...filters, platforms: selectedPlatforms });
           setIsAdTypeSelectorOpen(true);
-          handleFilterChange();
+          // handleFilterChange();
         }}
         onDeselectAll={() => {
           setFilters({ ...filters, platforms: [] });
-          handleFilterChange();
+          // handleFilterChange();
           setIsAppSelectorOpen(true);
         }}
       />
@@ -92,13 +96,14 @@ export function GlobalFilter() {
         onSelectionChange={(selectedAdTypes) => {
           setFilters({ ...filters, adTypes: selectedAdTypes });
         }}
-        onSelectionComplete={() => {
+        onSelectionComplete={(selectedAdTypes) => {
+          setFilters({ ...filters, adTypes: selectedAdTypes });
           setIsDateRangePickerOpen(true);
-          handleFilterChange();
+          // handleFilterChange();
         }}
         onDeselectAll={() => {
-          setFilters({ ...filters, platforms: [] });
-          handleFilterChange();
+          setFilters({ ...filters, adTypes: [] });
+          // handleFilterChange();
           setIsPlatformSelectorOpen(true);
         }}
       />
@@ -109,7 +114,7 @@ export function GlobalFilter() {
         selectedDateRange={filters.range}
         onApply={(range) => {
           setFilters({ ...filters, range });
-          handleFilterChange();
+          // handleFilterChange();
         }}
       />
 

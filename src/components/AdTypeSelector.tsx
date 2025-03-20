@@ -18,7 +18,7 @@ interface AdTypeSelectorProps {
   selectedAdTypes?: AdType[];
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedAdTypes: AdType[]) => void; // 선택된 광고 타입 전달 (선택)
-  onSelectionComplete?: () => void;
+  onSelectionComplete?: (selectedAdTypes: AdType[]) => void;
   onDeselectAll?: () => void;
 }
 
@@ -48,7 +48,7 @@ export function AdTypeSelector({
     onSelectionChange?.(tempSelectedAdTypes); // 선택된 광고 타입 전달
     setIsOpen(false); // 드롭다운 닫기
     if (onSelectionComplete) {
-      onSelectionComplete();
+      onSelectionComplete(tempSelectedAdTypes);
     }
   };
 
@@ -87,6 +87,7 @@ export function AdTypeSelector({
   useEffect(() => {
     if (!isConfirmed && tempSelectedAdTypes.length === 0 && confirmedAdTypes.length > 0) {
       setConfirmedAdTypes([]);
+      onSelectionChange?.([]); // 선택된 광고 타입 전달
       setIsOpen(false);
       onDeselectAll?.();
     }

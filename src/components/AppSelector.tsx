@@ -25,7 +25,7 @@ interface AppSelectorProps {
   selectedAppIds?: string[];
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedApps: App[]) => void; // 선택된 앱 전달 (선택)
-  onSelectionComplete?: () => void;
+  onSelectionComplete?: (selectedApps: App[]) => void;
   onDeselectAll?: () => void;
 }
 
@@ -54,6 +54,7 @@ export function AppSelector({
   useEffect(() => {
     if (!isConfirmed && tempSelectedApps.length === 0 && confirmedApps.length > 0) {
       setConfirmedApps([]);
+      onSelectionChange?.([]); // 선택된 광고 타입 전달
       setIsOpen(false);
       onDeselectAll?.();
     }
@@ -89,7 +90,7 @@ export function AppSelector({
     onSelectionChange?.(selected); // 선택된 앱 전달
     setIsOpen(false); // AppSelector 닫기
     if (onSelectionComplete) {
-      onSelectionComplete();
+      onSelectionComplete(selected);
     }
   };
 
