@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useState } from 'react';
 import ShareDialog from '@/components/ShareDialog';
 import { FilterState } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
@@ -9,33 +9,55 @@ import QueryParser from '@/lib/QueryParser';
 import { PlatformSelector } from './PlatformSelector';
 import { AdTypeSelector } from './AdTypeSelector';
 import { DateRangePicker } from './DateRangePicker';
+import { toast, Toaster } from 'sonner';
+import { format } from 'date-fns';
 
 export function GlobalFilter() {
   const navigate = useNavigate();
   const { search } = useLocation();
   const [parser] = useState(new QueryParser(new URLSearchParams(search)));
   const initialChartParams = parser.parseGlobalFilters();
+
+  // TODO: Init params from search
   const [filters, setFilters] = useState<FilterState>({
     apps: undefined,
     platforms: undefined,
     adTypes: undefined,
-    dateRange: [{ startDate: new Date(), endDate: new Date(), key: 'selection' }],
+    range: { from: new Date(), to: new Date() },
   });
-  const platformSelectorTriggerRef = useRef<HTMLButtonElement>(null);
 
   const [isAppSelectorOpen, setIsAppSelectorOpen] = useState(false);
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
   const [isAdTypeSelectorOpen, setIsAdTypeSelectorOpen] = useState(false);
+  const [isDateRangePickerOpen, setIsDateRangePickerOpen] = useState(false);
 
   const handleFilterChange = () => {
     const newParams = new URLSearchParams();
-    if (filters.dateRange[0].startDate) {
-      newParams.set('start_date', filters.dateRange[0].startDate.toISOString().split('T')[0]);
-      newParams.set('end_date', filters.dateRange[0].endDate.toISOString().split('T')[0]);
+    if (filters.range.from && filters.range.to) {
+      newParams.set('start_date', format(filters.range.from, 'yyyy-MM-dd'));
+      newParams.set('end_date', format(filters.range.from, 'yyyy-MM-dd'));
     }
     if (filters.apps) newParams.set('app_ids', filters.apps.join(','));
     if (filters.platforms) newParams.set('platforms', filters.platforms.join(','));
     if (filters.adTypes) newParams.set('ad_types', filters.adTypes.join(','));
+  };
+
+  const submitFilters = () => {
+    const newParams = new URLSearchParams();
+    if (filters.range.from && filters.range.to) {
+      newParams.set('start_date', format(filters.range.from, 'yyyy-MM-dd'));
+      newParams.set('end_date', format(filters.range.from, 'yyyy-MM-dd'));
+    }
+    if (filters.apps) newParams.set('app_ids', filters.apps.join(','));
+    if (filters.platforms) newParams.set('platforms', filters.platforms.join(','));
+    if (filters.adTypes) newParams.set('ad_types', filters.adTypes.join(','));
+
+    const errors = parser.validateParams();
+    if (errors) {
+      toast.error(errors.join('\n'));
+      return;
+    }
+
     navigate({ to: '/reports', search: newParams.toString() });
   };
 
@@ -58,7 +80,6 @@ export function GlobalFilter() {
       <PlatformSelector
         isOpen={isPlatformSelectorOpen}
         setIsOpen={setIsPlatformSelectorOpen}
-        triggerRef={platformSelectorTriggerRef}
         onSelectionChange={(selectedPlatforms) => {
           setFilters({ ...filters, platforms: selectedPlatforms });
           handleFilterChange();
@@ -75,19 +96,22 @@ export function GlobalFilter() {
           handleFilterChange();
         }}
         onSelectionComplete={() => {
-          // TODO: open date picker
+          setIsDateRangePickerOpen(true);
         }}
       />
       <DateRangePicker
-        onApply={(ranges: any) => {
-          setFilters({ ...filters, dateRange: [ranges.selection] });
-          handleFilterChange();
+        isOpen={isDateRangePickerOpen}
+        setIsOpen={setIsDateRangePickerOpen}
+        onApply={(range) => {
+          setFilters({ ...filters, range });
+          submitFilters();
         }}
-        initialRange={filters.dateRange}
-        className="w-80"
+        initialRange={filters.range}
       />
 
       <ShareDialog />
+
+      <Toaster />
     </div>
   );
 }

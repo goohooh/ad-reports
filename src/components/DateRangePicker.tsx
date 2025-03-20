@@ -13,7 +13,7 @@ interface DateRangePickerProps {
   isOpen: boolean;
   initialRange: DateRange | undefined;
   triggerRef?: React.RefObject<HTMLButtonElement>;
-  onApply: (startDate: string, endDate: string) => void;
+  onApply: (range: { from: Date; to: Date }) => void;
   setIsOpen: (open: boolean) => void;
 }
 
@@ -38,9 +38,8 @@ export function DateRangePicker({
 
   const handleApply = () => {
     if (range?.from && range?.to) {
-      const startDate = format(range.from, 'yyyy-MM-dd');
-      const endDate = format(range.to, 'yyyy-MM-dd');
-      onApply(startDate, endDate);
+      const { from, to } = range;
+      onApply({ from, to });
     }
     setIsOpen(false);
   };

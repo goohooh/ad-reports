@@ -31,6 +31,9 @@ export type AdType = (typeof adTypes)[number];
 
 export interface MetricsData {
   date: string;
+  app_id?: string;
+  platform?: Platform;
+  ad_type?: AdType;
   value: number;
 }
 
@@ -38,5 +41,5 @@ export interface FilterState {
   apps?: string[];
   platforms?: string[];
   adTypes?: string[];
-  dateRange: { startDate: Date; endDate: Date; key: string }[];
+  range: { from: Date; to: Date };
 }

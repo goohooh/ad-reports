@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,6 @@ import { Platform, platforms } from '@/types';
 
 interface PlatformSelectorProps {
   isOpen: boolean;
-  triggerRef?: React.RefObject<HTMLButtonElement | null>; // 트리거 버튼 ref 추가
   selectedPlatforms?: Platform[];
   setIsOpen: (open: boolean) => void;
   onSelectionChange?: (selectedPlatforms: Platform[]) => void; // 선택된 플랫폼 전달 (선택)
@@ -20,7 +19,6 @@ interface PlatformSelectorProps {
 
 export function PlatformSelector({
   isOpen,
-  triggerRef,
   selectedPlatforms = [],
   setIsOpen,
   onSelectionChange,
@@ -31,6 +29,7 @@ export function PlatformSelector({
     ...confirmedPlatforms,
   ]); // 임시 선택 상태
   const [isConfirmed, setIsConfirmed] = useState(false); // 완료 버튼 클릭 여부
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // 체크박스 상태 토글 (임시 상태만 업데이트)
   const handleCheckboxChange = (platform: Platform) => {
