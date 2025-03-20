@@ -39,6 +39,15 @@ export default class QueryFilterParser {
     return value ? value.split(',').filter(Boolean) : defaultValue;
   }
 
+  private parseChartFilters(): ChartFilterState[] {
+    return this.getArrayParam('charts').map((chart) => {
+      return {
+        metric: chart.split(':')[0] as Metric,
+        groupBy: chart.split(':')[1] as GroupBy | undefined,
+      };
+    });
+  }
+
   parseGlobalFilters(): GlobalFilterState {
     return {
       apps: this.getArrayParam('app_ids'),
@@ -49,15 +58,6 @@ export default class QueryFilterParser {
         to: new Date(this.getParam('end_date', new Date().toISOString().split('T')[0])!),
       },
     };
-  }
-
-  parseChartFilters(): ChartFilterState[] {
-    return this.getArrayParam('charts').map((chart) => {
-      return {
-        metric: chart.split(':')[0] as Metric,
-        groupBy: chart.split(':')[1] as GroupBy | undefined,
-      };
-    });
   }
 
   parseForCharts(): ChartParams[] {
@@ -85,6 +85,26 @@ export default class QueryFilterParser {
       }),
       toArray,
     );
+  }
+
+  updateChartParams(metric: Metric, group_by?: GroupBy) {
+    const charts = this.parseChartFilters();
+    const newCharts = charts.map((chart) => {
+      if (chart.metric === metric) {
+        return {
+          ...chart,
+          group_by,
+        };
+      }
+      return chart;
+    });
+    this.params.set(
+      'charts',
+      newCharts
+        .map(({ metric, group_by }) => `${metric}${group_by ? `:${group_by}` : ''}`)
+        .join(','),
+    );
+    return this.params;
   }
 
   public validateFilters(filters: GlobalFilterState): string[] | null {
