@@ -42,6 +42,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
+      <h3 className="text-center text-lg">{chartParams.metric}</h3>
       <LineChart width={300} height={200} data={data.data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
