@@ -1,6 +1,6 @@
 import GridLayout from 'react-grid-layout';
 import '/node_modules/react-grid-layout/css/styles.css';
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ChartParams, GroupBy, groupByList, ReportResponse } from '@/types';
 import '/node_modules/react-grid-layout/css/styles.css';
@@ -22,17 +22,95 @@ export function ChartGridList({ chartParams }: { chartParams: ChartParams[] }) {
   }));
   const [layout, setLayout] = useState<GridLayout.Layout[]>(layouts);
 
+  if (chartParams.length === 0) {
+    return (
+      <div className="bg-gray-50">
+        <div className="flex justify-center items-center h-[400px]">No Data</div>
+      </div>
+    );
+  }
+
+  useEffect(() => {
+    setLayout(layouts);
+  }, [JSON.stringify(chartParams)]);
+
+  const maxRows = Math.ceil(chartParams.length / 3);
+  const handleDrag = (
+    layout: GridLayout.Layout[],
+    oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+    placeholder: GridLayout.Layout,
+    e: MouseEvent,
+    element: HTMLElement,
+  ) => {
+    if (newItem.y >= maxRows) {
+      // maxRows 초과 시 원래 위치로 복원
+      newItem.x = oldItem.x;
+      newItem.y = oldItem.y;
+      placeholder.x = oldItem.x;
+      placeholder.y = oldItem.y;
+    }
+  };
+  // 드래그 종료 시 스왑 처리 및 빈 공간 방지
+  // 드래그 종료 시 스왑 및 maxRows 제한 적용
+  const handleDragStop = (newLayout: GridLayout.Layout[]) => {
+    let updatedLayout = [...newLayout];
+
+    newLayout.forEach((newItem) => {
+      const originalItem = layout.find((l) => l.i === newItem.i);
+      if (!originalItem) return;
+
+      // 겹치는 아이템 확인
+      const overlappingItem = layout.find(
+        (l) => l.i !== newItem.i && l.x === newItem.x && l.y === newItem.y,
+      );
+
+      if (overlappingItem) {
+        // 스왑: 겹친 아이템과 위치 교환
+        updatedLayout = updatedLayout.map((item) =>
+          item.i === overlappingItem.i
+            ? { ...item, x: originalItem.x, y: originalItem.y }
+            : item.i === newItem.i
+              ? { ...item, x: overlappingItem.x, y: overlappingItem.y }
+              : item,
+        );
+      } else {
+        // 빈 공간이거나 maxRows 초과 시 원래 위치로 복원
+        updatedLayout = updatedLayout.map((item) =>
+          item.i === newItem.i ? { ...item, x: originalItem.x, y: originalItem.y } : item,
+        );
+      }
+    });
+
+    // maxRows 제한 및 연속 배치 적용
+    const sortedLayout = updatedLayout
+      .sort((a, b) => a.y - b.y || a.x - b.x)
+      .map((item, i) => {
+        const newX = i % 3;
+        const newY = Math.floor(i / 3);
+        return {
+          ...item,
+          x: newX,
+          y: newY < maxRows ? newY : maxRows - 1, // maxRows 초과 방지
+        };
+      });
+
+    setLayout(sortedLayout);
+  };
+
   return (
     <GridLayout
-      compactType="horizontal"
+      className="bg-gray-50 w-[1200px]"
+      compactType={null}
       layout={layout}
-      onLayoutChange={(newLayout) => setLayout(newLayout)}
+      onDragStop={handleDragStop}
       cols={3}
       rowHeight={300}
       width={1200}
       isDraggable={true}
       isResizable={false}
       preventCollision={false}
+      maxRows={maxRows}
     >
       {chartParams.map((chartParam, index) => (
         <div key={generateChartKey(chartParam, index)} className="border rounded-lg max-w-[400px]">
@@ -116,7 +194,7 @@ function ChartComponent({ chartParams, index }: { chartParams: ChartParams; inde
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg">
+    <div className="p-4 bg-white h-full rounded-lg">
       <header className="flex justify-between items-center">
         <h3 className="text-center text-lg">{chartParams.metric}</h3>
 
