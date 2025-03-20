@@ -14,7 +14,7 @@ import { useNavigate } from '@tanstack/react-router';
 
 export function ChartGridList({ chartParams }: { chartParams: ChartParams[] }) {
   const layouts = chartParams.map((chartParam, i) => ({
-    i: generateChartKey(chartParam),
+    i: generateChartKey(chartParam, i),
     x: i % 3,
     y: Math.floor(i / 3),
     w: 1,
@@ -45,8 +45,8 @@ export function ChartGridList({ chartParams }: { chartParams: ChartParams[] }) {
   );
 }
 
-function generateChartKey(chartParam: ChartParams) {
-  return `chart-${chartParam.metric}-${chartParam.group_by || 'no-group-by'}`;
+function generateChartKey(chartParam: ChartParams, index: number) {
+  return `chart-${chartParam.metric}-${index}`;
 }
 
 function ChartComponent({ chartParams, index }: { chartParams: ChartParams; index: number }) {
